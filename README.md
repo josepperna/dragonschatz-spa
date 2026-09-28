@@ -19,7 +19,7 @@ Photos and the original logo are sourced from [dragonschatz.ch](https://www.drag
 
 ### GitHub Pages preview
 
-`.github/workflows/pages.yml` builds on pull requests and publishes `main` to GitHub Pages at `https://josepperna.github.io/dragonschatz-spa/`. Pages must be enabled in repository Settings → Pages with **GitHub Actions** as the build source. The repository stays private, but the published website is publicly accessible. GitHub may require a paid account to publish Pages from a private repository.
+`.github/workflows/pages.yml` builds on pull requests and publishes `main` to GitHub Pages at `https://josepperna.github.io/dragonschatz-spa/`. Pages must be enabled in repository Settings → Pages with **GitHub Actions** as the build source. The repository stays private, but the published website is publicly accessible. **This account's current plan does not support Pages for this private repository** (GitHub's API returns HTTP 422). To avoid a failing workflow, publishing is disabled until the `ENABLE_GH_PAGES` repository variable is set to `true` after upgrading the account or changing the repository visibility. The build check still runs on every push and pull request. Alternatively, publish the compiled `dist/` output from a separate public preview repository while keeping this source repository private.
 
 ### Google Cloud Run
 

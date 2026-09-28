@@ -28,12 +28,12 @@ jobs:
           test -f dist/images/hero.jpg
           test -f dist/menus/mittag.pdf
       - uses: actions/upload-pages-artifact@v3
-        if: github.event_name != 'pull_request'
+        if: github.event_name != 'pull_request' && vars.ENABLE_GH_PAGES == 'true'
         with:
           path: dist
 
   deploy:
-    if: github.event_name != 'pull_request'
+    if: github.event_name != 'pull_request' && vars.ENABLE_GH_PAGES == 'true'
     needs: build
     runs-on: ubuntu-latest
     permissions:
