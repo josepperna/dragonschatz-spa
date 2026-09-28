@@ -1,0 +1,46 @@
+name: Deploy to Google Cloud Run
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    # Leave the GCP deployment dormant until all four repository variables are configured.
+    if: vars.GCP_PROJECT_ID != '' && vars.GCP_REGION != '' && vars.GCP_WIF_PROVIDER != '' && vars.GCP_DEPLOY_SA != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    concurrency:
+      group: cloud-run-production
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Authenticate with Google Cloud using OIDC
+        uses: google-github-actions/auth@v2
+        with:
+          project_id: ${{ vars.GCP_PROJECT_ID }}
+          workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+          service_account: ${{ vars.GCP_DEPLOY_SA }}
+      - uses: google-github-actions/setup-gcloud@v2
+      - name: Build and deploy static site
+        run: |
+          gcloud run deploy dragonschatz-spa \
+            --source . \
+            --region "${{ vars.GCP_REGION }}" \
+            --project "${{ vars.GCP_PROJECT_ID }}" \
+            --allow-unauthenticated \
+            --quiet
+      - name: Print service URL
+        run: gcloud run services describe dragonschatz-spa --region "${{ vars.GCP_REGION }}" --project "${{ vars.GCP_PROJECT_ID }}" --format='value(status.url)'
